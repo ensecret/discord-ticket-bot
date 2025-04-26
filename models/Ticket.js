@@ -11,7 +11,16 @@ const ticketSchema = new mongoose.Schema({
         default: 'open'
     },
     category: { type: String, default: 'general' },
-    priority: { type: String, enum: ['low', 'medium', 'high'], default: 'medium' },
+    priority: { 
+        type: String, 
+        enum: ['low', 'medium', 'high'], 
+        default: 'medium' 
+    },
+    priorityHistory: [{
+        priority: String,
+        changedBy: String,
+        timestamp: { type: Date, default: Date.now }
+    }],
     createdAt: {
         type: Date,
         default: Date.now
@@ -22,7 +31,21 @@ const ticketSchema = new mongoose.Schema({
         userId: String,
         content: String,
         timestamp: { type: Date, default: Date.now }
-    }]
+    }],
+    rating: {
+        type: Number,
+        min: 1,
+        max: 5
+    },
+    ratingHistory: [{
+        rating: Number,
+        userId: String,
+        timestamp: { type: Date, default: Date.now }
+    }],
+    archived: {
+        type: Boolean,
+        default: false
+    }
 });
 
 module.exports = mongoose.model('Ticket', ticketSchema); 

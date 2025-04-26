@@ -1,25 +1,25 @@
-const { REST, Routes } = require('discord.js');
 require('dotenv').config();
+const { REST, Routes } = require('discord.js');
+const { logError, logInfo } = require('./utils/logger');
 
 // Определение команд
 const commands = [
     {
         name: 'setup-tickets',
-        description: 'Создать панель тикетов в текущем канале',
+        description: 'Создать панель управления тикетами',
         defaultMemberPermissions: '8' // Требуются права администратора
     }
 ];
 
+const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
+
 async function deployCommands() {
-    if (!process.env.TOKEN || !process.env.CLIENT_ID) {
-        console.error('Ошибка: Отсутствуют TOKEN или CLIENT_ID в файле .env');
-        process.exit(1);
-    }
-
-    const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
-
     try {
-        console.log('Начинаем регистрацию slash-команд...');
+        if (!process.env.TOKEN || !process.env.CLIENT_ID) {
+            throw new Error('Отсутствуют TOKEN или CLIENT_ID в переменных окружения');
+        }
+
+        logInfo('Deploy', 'Начало регистрации команд...');
 
         // Регистрируем команды глобально
         const data = await rest.put(
@@ -27,12 +27,10 @@ async function deployCommands() {
             { body: commands }
         );
 
-        console.log(`✅ Успешно зарегистрировано ${data.length} команд`);
-        console.log('🔹 Команды станут доступны в течение часа');
-        console.log('🔸 Для ускорения процесса можно перезапустить Discord клиент');
+        logInfo('Deploy', `Успешно зарегистрировано ${data.length} команд`);
+        logInfo('Deploy', 'Команды будут доступны на всех серверах через несколько минут');
     } catch (error) {
-        console.error('❌ Ошибка при регистрации команд:', error);
-        process.exit(1);
+        logError('Deploy', error);
     }
 }
 
